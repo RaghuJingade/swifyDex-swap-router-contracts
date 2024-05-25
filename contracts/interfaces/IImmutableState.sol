@@ -7,6 +7,6 @@ interface IImmutableState {
     /// @return Returns the address of the Uniswap V2 factory
     function factoryV2() external view returns (address);
 
-    /// @return Returns the address of Uniswap V3 NFT position manager
+    /// @return Returns the address of SwifyDex NFT position manager
     function positionManager() external view returns (address);
 }

@@ -3,7 +3,7 @@ pragma solidity >=0.7.5;
 pragma abicoder v2;
 
 /// @title MixedRouteQuoterV1 Interface
-/// @notice Supports quoting the calculated amounts for exact input swaps. Is specialized for routes containing a mix of V2 and V3 liquidity.
+/// @notice Supports quoting the calculated amounts for exact input swaps. Is specialized for routes containing a mix of V2 and swifydex liquidity.
 /// @notice For each pool also tells you the number of initialized ticks crossed and the sqrt price of the pool after the swap.
 /// @dev These functions are not marked view because they rely on calling non-view functions and reverting
 /// to compute the result. They are also not gas efficient and should not be called on-chain.
@@ -12,10 +12,13 @@ interface IMixedRouteQuoterV1 {
     /// @param path The path of the swap, i.e. each token pair and the pool fee
     /// @param amountIn The amount of the first token to swap
     /// @return amountOut The amount of the last token that would be received
-    /// @return v3SqrtPriceX96AfterList List of the sqrt price after the swap for each v3 pool in the path, 0 for v2 pools
-    /// @return v3InitializedTicksCrossedList List of the initialized ticks that the swap crossed for each v3 pool in the path, 0 for v2 pools
-    /// @return v3SwapGasEstimate The estimate of the gas that the v3 swaps in the path consume
-    function quoteExactInput(bytes memory path, uint256 amountIn)
+    /// @return v3SqrtPriceX96AfterList List of the sqrt price after the swap for each swifydex pool in the path, 0 for v2 pools
+    /// @return v3InitializedTicksCrossedList List of the initialized ticks that the swap crossed for each swifydex pool in the path, 0 for v2 pools
+    /// @return v3SwapGasEstimate The estimate of the gas that the swifydex swaps in the path consume
+    function quoteExactInput(
+        bytes memory path,
+        uint256 amountIn
+    )
         external
         returns (
             uint256 amountOut,
@@ -49,7 +52,9 @@ interface IMixedRouteQuoterV1 {
     /// @return sqrtPriceX96After The sqrt price of the pool after the swap
     /// @return initializedTicksCrossed The number of initialized ticks that the swap crossed
     /// @return gasEstimate The estimate of the gas that the swap consumes
-    function quoteExactInputSingleV3(QuoteExactInputSingleV3Params memory params)
+    function quoteExactInputSingleV3(
+        QuoteExactInputSingleV3Params memory params
+    )
         external
         returns (
             uint256 amountOut,
@@ -64,9 +69,11 @@ interface IMixedRouteQuoterV1 {
     /// tokenOut The token being swapped out
     /// amountIn The desired input amount
     /// @return amountOut The amount of `tokenOut` that would be received
-    function quoteExactInputSingleV2(QuoteExactInputSingleV2Params memory params) external returns (uint256 amountOut);
+    function quoteExactInputSingleV2(
+        QuoteExactInputSingleV2Params memory params
+    ) external returns (uint256 amountOut);
 
     /// @dev ExactOutput swaps are not supported by this new Quoter which is specialized for supporting routes
-    ///      crossing both V2 liquidity pairs and V3 pools.
+    ///      crossing both V2 liquidity pairs and swifydex pools.
     /// @deprecated quoteExactOutputSingle and exactOutput. Use QuoterV2 instead.
 }

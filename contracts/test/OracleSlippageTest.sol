@@ -2,13 +2,18 @@
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import '../base/OracleSlippage.sol';
+import "../base/OracleSlippage.sol";
+import "../../Core/interfaces/ISwifyDexPool.sol";
 
 contract OracleSlippageTest is OracleSlippage {
-    mapping(address => mapping(address => mapping(uint24 => IUniswapV3Pool))) private pools;
+    mapping(address => mapping(address => mapping(uint24 => ISwifyDexPool)))
+        private pools;
     uint256 internal time;
 
-    constructor(address _factory, address _WETH9) PeripheryImmutableState(_factory, _WETH9) {}
+    constructor(
+        address _factory,
+        address _WETH9
+    ) PeripheryImmutableState(_factory, _WETH9) {}
 
     function setTime(uint256 _time) external {
         time = _time;
@@ -19,7 +24,7 @@ contract OracleSlippageTest is OracleSlippage {
     }
 
     function registerPool(
-        IUniswapV3Pool pool,
+        ISwifyDexPool pool,
         address tokenIn,
         address tokenOut,
         uint24 fee
@@ -32,19 +37,20 @@ contract OracleSlippageTest is OracleSlippage {
         address tokenA,
         address tokenB,
         uint24 fee
-    ) internal view override returns (IUniswapV3Pool pool) {
+    ) internal view override returns (ISwifyDexPool pool) {
         pool = pools[tokenA][tokenB][fee];
     }
 
-    function testGetBlockStartingAndCurrentTick(IUniswapV3Pool pool)
-        external
-        view
-        returns (int24 blockStartingTick, int24 currentTick)
-    {
+    function testGetBlockStartingAndCurrentTick(
+        ISwifyDexPool pool
+    ) external view returns (int24 blockStartingTick, int24 currentTick) {
         return getBlockStartingAndCurrentTick(pool);
     }
 
-    function testGetSyntheticTicks(bytes memory path, uint32 secondsAgo)
+    function testGetSyntheticTicks(
+        bytes memory path,
+        uint32 secondsAgo
+    )
         external
         view
         returns (int256 syntheticAverageTick, int256 syntheticCurrentTick)
@@ -56,7 +62,14 @@ contract OracleSlippageTest is OracleSlippage {
         bytes[] memory paths,
         uint128[] memory amounts,
         uint32 secondsAgo
-    ) external view returns (int256 averageSyntheticAverageTick, int256 averageSyntheticCurrentTick) {
+    )
+        external
+        view
+        returns (
+            int256 averageSyntheticAverageTick,
+            int256 averageSyntheticCurrentTick
+        )
+    {
         return getSyntheticTicks(paths, amounts, secondsAgo);
     }
 }

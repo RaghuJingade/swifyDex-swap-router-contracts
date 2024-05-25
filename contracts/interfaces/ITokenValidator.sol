@@ -22,7 +22,11 @@ interface ITokenValidator {
     // Status.FOT: detected a fee is taken on transfer.
     // Status.STF: transfer failed for the token.
     // Status.UNKN: no issues found with the token.
-    enum Status {UNKN, FOT, STF}
+    enum Status {
+        UNKN,
+        FOT,
+        STF
+    }
 
     /// @notice Validates a token by detecting if its transferable or takes a fee on transfer
     /// @param token The address of the token to check for fee on transfer

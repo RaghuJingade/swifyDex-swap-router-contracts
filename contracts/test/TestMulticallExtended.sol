@@ -2,7 +2,7 @@
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import '../base/MulticallExtended.sol';
+import "../base/MulticallExtended.sol";
 
 contract TestMulticallExtended is MulticallExtended {
     uint256 time;
@@ -20,7 +20,10 @@ contract TestMulticallExtended is MulticallExtended {
         uint256 b;
     }
 
-    function functionThatReturnsTuple(uint256 a, uint256 b) external pure returns (Tuple memory tuple) {
+    function functionThatReturnsTuple(
+        uint256 a,
+        uint256 b
+    ) external pure returns (Tuple memory tuple) {
         tuple = Tuple({b: a, a: b});
     }
 }

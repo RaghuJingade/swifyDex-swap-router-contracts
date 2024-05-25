@@ -1,46 +1,43 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.7.6;
 
-import '@uniswap/v3-core/contracts/libraries/Oracle.sol';
+import 'swifydex-v3-core/contracts/libraries/Oracle.sol';
 
 contract MockObservations {
-    using Oracle for Oracle.Observation[65535];
+    Oracle.Observation[4] internal oracleObservations;
 
-    // slot0
-    int24 private slot0Tick;
-    uint16 private slot0ObservationCardinality;
-    uint16 private slot0ObservationIndex;
+    int24 slot0Tick;
+    uint16 internal slot0ObservationCardinality;
+    uint16 internal slot0ObservationIndex;
+    uint128 public liquidity;
 
-    // observations
-    Oracle.Observation[65535] public observations;
+    bool internal lastObservationCurrentTimestamp;
 
-    // block timestamps always monotonic increasing from 0, cumulative ticks are calculated automatically
     constructor(
-        uint32[3] memory blockTimestamps,
-        int24[3] memory ticks,
-        bool mockLowObservationCardinality
+        uint32[4] memory _blockTimestamps,
+        int56[4] memory _tickCumulatives,
+        uint128[4] memory _secondsPerLiquidityCumulativeX128s,
+        bool[4] memory _initializeds,
+        int24 _tick,
+        uint16 _observationCardinality,
+        uint16 _observationIndex,
+        bool _lastObservationCurrentTimestamp,
+        uint128 _liquidity
     ) {
-        require(blockTimestamps[0] == 0, '0');
-        require(blockTimestamps[1] > 0, '1');
-        require(blockTimestamps[2] > blockTimestamps[1], '2');
-
-        int56 tickCumulative = 0;
-        for (uint256 i = 0; i < blockTimestamps.length; i++) {
-            if (i != 0) {
-                int24 tick = ticks[i - 1];
-                uint32 delta = blockTimestamps[i] - blockTimestamps[i - 1];
-                tickCumulative += int56(tick) * delta;
-            }
-            observations[i] = Oracle.Observation({
-                blockTimestamp: blockTimestamps[i],
-                tickCumulative: tickCumulative,
-                secondsPerLiquidityCumulativeX128: uint160(i),
-                initialized: true
+        for (uint256 i = 0; i < _blockTimestamps.length; i++) {
+            oracleObservations[i] = Oracle.Observation({
+                blockTimestamp: _blockTimestamps[i],
+                tickCumulative: _tickCumulatives[i],
+                secondsPerLiquidityCumulativeX128: _secondsPerLiquidityCumulativeX128s[i],
+                initialized: _initializeds[i]
             });
         }
-        slot0Tick = ticks[2];
-        slot0ObservationCardinality = mockLowObservationCardinality ? 1 : 3;
-        slot0ObservationIndex = 2;
+
+        slot0Tick = _tick;
+        slot0ObservationCardinality = _observationCardinality;
+        slot0ObservationIndex = _observationIndex;
+        lastObservationCurrentTimestamp = _lastObservationCurrentTimestamp;
+        liquidity = _liquidity;
     }
 
     function slot0()
@@ -59,19 +56,27 @@ contract MockObservations {
         return (0, slot0Tick, slot0ObservationIndex, slot0ObservationCardinality, 0, 0, false);
     }
 
-    function observe(uint32[] calldata secondsAgos)
+    function observations(uint256 index)
         external
         view
-        returns (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s)
+        returns (
+            uint32,
+            int56,
+            uint160,
+            bool
+        )
     {
-        return
-            observations.observe(
-                observations[2].blockTimestamp,
-                secondsAgos,
-                slot0Tick,
-                slot0ObservationIndex,
-                0,
-                slot0ObservationCardinality
-            );
+        Oracle.Observation memory observation = oracleObservations[index];
+        if (lastObservationCurrentTimestamp) {
+            observation.blockTimestamp =
+                uint32(block.timestamp) -
+                (oracleObservations[slot0ObservationIndex].blockTimestamp - observation.blockTimestamp);
+        }
+        return (
+            observation.blockTimestamp,
+            observation.tickCumulative,
+            observation.secondsPerLiquidityCumulativeX128,
+            observation.initialized
+        );
     }
 }

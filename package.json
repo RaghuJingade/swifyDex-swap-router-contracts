@@ -1,20 +1,18 @@
 {
-  "name": "@uniswap/swap-router-contracts",
-  "description": "Smart contracts for swapping on Uniswap V2 and V3",
+  "name": "swifydex-swap-router-contracts",
+  "description": "Smart contracts for swapping on SwifyDex V2 and V3",
   "license": "GPL-2.0-or-later",
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.3.1",
-  "homepage": "https://uniswap.org",
+  "version": "1.0.0",
   "keywords": [
-    "uniswap",
     "v2",
     "v3"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Uniswap/swap-router-contracts"
+    "url": "https://github.com/RaghuJingade/swifyDex-swap-router-contracts.git"
   },
   "files": [
     "contracts/base",
@@ -30,11 +28,11 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "3.4.2-solc-0.7",
-    "@uniswap/v2-core": "^1.0.1",
-    "@uniswap/v3-core": "^1.0.0",
-    "@uniswap/v3-periphery": "^1.4.4",
     "dotenv": "^14.2.0",
-    "hardhat-watcher": "^2.1.1"
+    "hardhat-watcher": "^2.1.1",
+    "swifydex-v2-core": "^1.0.0",
+    "swifydex-v3-core": "^1.0.1",
+    "swifydex-v3-periphery": "^1.0.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
